@@ -29,9 +29,13 @@ class BasicDeconv(nn.Module):
 
     def forward(self, x):
         x = self.tconv(x)
+        # if self.use_bn:
+        #     x = self.bn(x)
+        # return F.relu(x, inplace=True)
+        x = F.relu(x, inplace=True)
         if self.use_bn:
             x = self.bn(x)
-        return F.relu(x, inplace=True)
+        return x
 
 
 class SAModule_Head(nn.Module):
