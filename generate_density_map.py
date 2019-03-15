@@ -56,10 +56,10 @@ def get_density_map_gaussian(N, M, points, adaptive_kernel=False, fixed_value=15
 
 # 22, 37
 if __name__ == "__main__":
-    image_dir_path = "/home/zzn/part_B_final/train_data/images"
-    ground_truth_dir_path = "/home/zzn/part_B_final/train_data/ground_truth"
-    output_gt_dir = "/home/zzn/part_B_final/train_data/gt_map"
-    for i in range(400):
+    image_dir_path = "/home/zzn/part_B_final/test_data/images"
+    ground_truth_dir_path = "/home/zzn/part_B_final/test_data/ground_truth"
+    output_gt_dir = "/home/zzn/part_B_final/test_data/gt_map"
+    for i in range(316):
         img_path = image_dir_path + "/IMG_" + str(i + 1) + ".jpg"
         gt_path = ground_truth_dir_path + "/GT_IMG_" + str(i + 1) + ".mat"
         img = Image.open(img_path)
