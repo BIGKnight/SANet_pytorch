@@ -22,12 +22,13 @@ dataset = DatasetConstructor(img_dir, gt_dir, 316, 316, False)
 test_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=1)
 mae_metrics = []
 mse_metrics = []
-net = torch.load("/home/zzn/PycharmProjects/SANet_pytoch/checkpoints/model_rate_b.pkl").to(cuda_device)
+net = torch.load("/home/zzn/PycharmProjects/SANet_pytoch/checkpoints/model_1_rate_b_0315_19:35.pkl").to(cuda_device)
 net.eval()
 
 
 ae_batch = metrics.AEBatch().to(cuda_device)
 se_batch = metrics.SEBatch().to(cuda_device)
+
 for real_index, test_img, test_gt, test_time_cost in test_loader:
     image_shape = test_img.shape
     patch_height = int(image_shape[3])
@@ -89,6 +90,7 @@ for real_index, test_img, test_gt, test_time_cost in test_loader:
                                                                                                    np.sum(
                                                                                                        numpy_predict_map)))
     sys.stdout.flush()
+
     mae_metrics = np.reshape(mae_metrics, [-1])
     mse_metrics = np.reshape(mse_metrics, [-1])
     MAE = np.mean(mae_metrics)

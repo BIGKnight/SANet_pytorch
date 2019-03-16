@@ -9,6 +9,7 @@ from metrics import *
 from DataConstructor import *
 from metrics import *
 from utils import show
+from FPN_SAN_Net import *
 import sys
 import torchvision.transforms as transforms
 MAE = 10240000
@@ -20,30 +21,36 @@ SHANGHAITECH = "B"
 img_dir = "/home/zzn/part_" + SHANGHAITECH + "_final/train_data/images"
 gt_dir = "/home/zzn/part_" + SHANGHAITECH + "_final/train_data/gt_map"
 
+img_dir_t = "/home/zzn/part_" + SHANGHAITECH + "_final/test_data/images"
+gt_dir_t = "/home/zzn/part_" + SHANGHAITECH + "_final/test_data/gt_map"
+
 dataset = DatasetConstructor(img_dir, gt_dir, 400, 50)
+test_data_set = DatasetConstructor(img_dir_t, gt_dir_t, 316, 50, False)
+
 train_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=4)
-eval_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=1)
+eval_loader = torch.utils.data.DataLoader(dataset=test_data_set, batch_size=1)
 # obtain the gpu device
 assert torch.cuda.is_available()
 cuda_device = torch.device("cuda")
 
 # model construct
+# net = FPN_SA_Net().to(cuda_device)
 net = SANet().to(cuda_device)
-# net = torch.load("/home/zzn/PycharmProjects/SANet_pytoch/checkpoints/model_mse_b_0312.pkl").to(cuda_device)
+# net = torch.load("/home/zzn/PycharmProjects/SANet_pytoch/checkpoints/model_1_in_time_0316_14:18.pkl").to(cuda_device)
 # set optimizer and estimator
 criterion = SANetLoss(1).to(cuda_device)
 optimizer = torch.optim.Adam(net.parameters(), 1e-6)
 ae_batch = AEBatch().to(cuda_device)
 se_batch = SEBatch().to(cuda_device)
-
 step = 0
 for epoch_index in range(10000):
-    dataset = dataset.train_model().shuffle()
+    #     dataset = dataset.train_model().shuffle()
+    dataset = dataset.shuffle()
     for train_img_index, train_img, train_gt, data_ptc in train_loader:
         # eval per 100 batch
         if step % 100 == 0:
             net.eval()
-            dataset = dataset.eval_model().shuffle()
+            test_data_set = test_data_set.shuffle()
             loss_ = []
             MAE_ = []
             MSE_ = []
@@ -102,7 +109,7 @@ for epoch_index in range(10000):
                 pred_counts = np.sum(validate_pred_map)
                 # random show 1 sample
                 if rand_number == counter and step % 2000 == 0:
-                    origin_image = Image.open("/home/zzn/part_" + SHANGHAITECH + "_final/train_data/images/IMG_" + str(
+                    origin_image = Image.open("/home/zzn/part_" + SHANGHAITECH + "_final/test_data/images/IMG_" + str(
                         eval_img_index.numpy()[0]) + ".jpg")
                     show(origin_image, validate_gt_map, validate_pred_map, eval_img_index.numpy()[0])
                     sys.stdout.write(
@@ -151,7 +158,7 @@ for epoch_index in range(10000):
             # return train model
 
         net.train()
-        dataset = dataset.train_model()
+        #         dataset = dataset.train_model()
         optimizer.zero_grad()
         # B
         x = train_img.cuda()
