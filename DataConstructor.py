@@ -1,9 +1,11 @@
 from PIL import Image
 import numpy as np
 import torchvision.transforms as transforms
+import torchvision.transforms.functional as F
 import torch.utils.data as data
 import random
 import time
+from utils import HSI_Calculator
 import torch
 
 
@@ -23,6 +25,7 @@ class DatasetConstructor(data.Dataset):
         self.train = if_train
         self.train_permulation = np.random.permutation(self.train_num)
         self.eval_permulation = random.sample(range(0, self.train_num),  self.validate_num)
+        self.calcu = HSI_Calculator()
         for i in range(self.train_num):
             img_name = '/IMG_' + str(i + 1) + ".jpg"
             gt_map_name = '/GT_IMG_' + str(i + 1) + ".npy"
@@ -35,6 +38,11 @@ class DatasetConstructor(data.Dataset):
         start = time.time()
         if self.train:
             img, gt_map = self.imgs[self.train_permulation[index]]
+            img = transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.1, hue=0.1)(img)
+            flip_random = random.random()
+            if flip_random > 0.5:
+                img = F.hflip(img)
+                gt_map = F.hflip(gt_map)
             img = transforms.ToTensor()(img)
             gt_map = transforms.ToTensor()(gt_map)
             img_shape = img.shape  # C, H, W
